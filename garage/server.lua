@@ -169,9 +169,21 @@ function spawnCarServerLoaded(player)
                 for k,w in pairs(GetAllVehicles()) do
                     local x3, y3, z3 = GetVehicleLocation(w)
                     local dist2 = GetDistance3D(v.spawn[1], v.spawn[2], v.spawn[3], x3, y3, z3)
-                    if dist2 < 1000.0 then
-                        isSpawnable = false
-                        break
+                    if dist2 < 500.0 then
+                        
+					
+                        local query = mariadb_prepare(sql, "UPDATE `player_garage` SET `garage`=1 WHERE `id` = ?;",
+                        tostring(VehicleData[w].garageid)
+                        )
+                        mariadb_async_query(sql, query)
+                        DestroyVehicle(w)
+                        DestroyVehicleData(w)
+                        AddPlayerChat(VehicleData[w].owner, _("vehicle_stored"))
+                    
+						
+						
+						
+                        
                     end
                 end
                 if isSpawnable then
