@@ -93,6 +93,19 @@ AddEvent( "OnGameTick", function()
     CallRemoteEvent("getHudData")
 end )
 
+AddEvent("OnKeyPress", function(key)
+if key == "Z" then
+if GetWebVisibility(minimap) == WEB_HITINVISIBLE then
+ SetWebVisibility(minimap, WEB_HIDDEN)
+ else
+  SetWebVisibility(minimap, WEB_HITINVISIBLE)
+end
+end
+end)
+
+
+
+
 function SetHUDMarker(name, h, r, g, b)
     if h == nil then
         ExecuteWebJS(minimap, "SetHUDMarker(\""..name.."\");");
