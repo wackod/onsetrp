@@ -64,6 +64,15 @@ AddRemoteEvent("StartStopDelivery", function(player)
             CallRemoteEvent(player, "ClientDestroyCurrentWaypoint")
         else
             local isSpawnable = true
+            local jobCount = 0
+            for k,v in pairs(PlayerData) do
+                if v.job == "delivery" then
+                    jobCount = jobCount + 1
+                end
+            end
+            if jobCount == 15 then
+                return CallRemoteEvent(player, "MakeNotification", _("job_full"), "linear-gradient(to right, #ff5f6d, #ffc371)")
+            end
             for k,v in pairs(GetAllVehicles()) do
                 local x, y, z = GetVehicleLocation(v)
                 local dist2 = GetDistance3D(deliveryNpc[nearestDelivery].spawn[1], deliveryNpc[nearestDelivery].spawn[2], deliveryNpc[nearestDelivery].spawn[3], x, y, z)
@@ -101,19 +110,19 @@ end)
 
 AddRemoteEvent("NextDelivery", function(player)
     if playerDelivery[player] ~= nil then
-        return AddPlayerChat(player, _("finish_your_delivery"))
+        return CallRemoteEvent(player, "MakeNotification", _("finish_your_delivery"), "linear-gradient(to right, #ff5f6d, #ffc371)")
     end
     delivery = Random(1, #deliveryPoint)
     playerDelivery[player] = delivery
     CallRemoteEvent(player, "ClientCreateWaypoint", _("delivery"), deliveryPoint[delivery][1], deliveryPoint[delivery][2], deliveryPoint[delivery][3])
-    AddPlayerChat(player, _("new_delivery"))
+    CallRemoteEvent(player, "MakeNotification", _("new_delivery"), "linear-gradient(to right, #00b09b, #96c93d)")
 end)
 
 AddRemoteEvent("FinishDelivery", function(player)
     delivery = playerDelivery[player]
 
     if delivery == nil then
-        AddPlayerChat(player, _("no_delivery"))
+        CallRemoteEvent(player, "MakeNotification", _("no_delivery"), "linear-gradient(to right, #ff5f6d, #ffc371)")
     end
 
     local x, y, z = GetPlayerLocation(player)
@@ -123,13 +132,13 @@ AddRemoteEvent("FinishDelivery", function(player)
     if dist < 150.0 then
         local reward = Random(50, 200)
 
-        AddPlayerChat(player, _("finished_delivery", reward, _("currency")))
+        CallRemoteEvent(player, "MakeNotification", _("finished_delivery", reward, _("currency")), "linear-gradient(to right, #ff5f6d, #ffc371)")
         
         PlayerData[player].cash = PlayerData[player].cash + reward
         playerDelivery[player] = nil
         CallRemoteEvent(player, "ClientDestroyCurrentWaypoint")
     else
-        AddPlayerChat(player, _("no_delivery_point"))
+        CallRemoteEvent(player, "MakeNotification", _("no_delivery_point"), "linear-gradient(to right, #ff5f6d, #ffc371)")
     end
 end)
 

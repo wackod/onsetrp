@@ -3,14 +3,16 @@ local _ = function(k,...) return ImportPackage("i18n").t(GetPackageName(),k,...)
 AtmObjectsCached = { }
 AtmTable = {
 	{
-		modelid = 494,
+		modelid = 33,
 		location = { 
-			{ 129221, 78053, 1478, 0, 90, 0 },
-			{ 42325, 137826, 1478, 0, 0, 0 },
-			{ 43900, 132972, 1470, 0, 90, 0 },
-			{ -15818, -3098, 1950, 0, 110, 0 },
-			{ -168797, -39550, 1050, 0, 0, 0 },
-			{ -182045, -40150, 1065, 0, -90, 0 }
+			{ 212950, 190500, 1250 },
+			{ 213419, 190723, 1250 },
+			{ 212908, 189890, 1250 },
+			{ 116650, 163194, 2980 },
+			{ 129240, 77945, 1500 },
+			{ -15000, -2385, 2000 },
+			{ 43900, 133143, 1500 },
+			{ 42246, 137850, 1500 }
 	 	},
 		object = {}
 	}
@@ -19,7 +21,7 @@ AtmTable = {
  AddEvent("OnPackageStart", function()
 	for k,v in pairs(AtmTable) do
 		for i,j in pairs(v.location) do
-			v.object[i] = CreateObject(v.modelid, v.location[i][1], v.location[i][2], v.location[i][3], v.location[i][4], v.location[i][5], v.location[i][6])
+			v.object[i] = CreatePickup(v.modelid, v.location[i][1], v.location[i][2], v.location[i][3])
 			CreateText3D(_("atm").."\n".._("press_e"), 18, v.location[i][1], v.location[i][2], v.location[i][3] + 200, 0, 0, 0)
 	
 			table.insert(AtmObjectsCached, v.object[i])
@@ -34,11 +36,11 @@ end)
 AddRemoteEvent("atmInteract", function(player, atmobject)
     local atm, atmid = GetAtmByObject(atmobject)
 	if atm then
-		local x, y, z = GetObjectLocation(atm.object[atmid])
+		local x, y, z = GetPickupLocation(atm.object[atmid])
 		local x2, y2, z2 = GetPlayerLocation(player)
         local dist = GetDistance3D(x, y, z, x2, y2, z2)
 
-		if dist < 200 then
+		if dist < 250 then
 			local bank = PlayerData[player].bank_balance
 			local cash = PlayerData[player].cash
 			local playersIds = GetAllPlayers()
@@ -64,12 +66,12 @@ end
 
 function withdrawAtm(player, amount)
 	if tonumber(amount) <= 0 then return end
-    if tonumber(amount) > PlayerData[player].bank_balance then
-        AddPlayerChat(player, _("withdraw_error"))
+	if tonumber(amount) > PlayerData[player].bank_balance then
+        CallRemoteEvent(player, "MakeNotification", _("withdraw_error"), "linear-gradient(to right, #ff5f6d, #ffc371)")
     else
         PlayerData[player].bank_balance = PlayerData[player].bank_balance - amount
         PlayerData[player].cash = PlayerData[player].cash + amount
-        AddPlayerChat(player, _("withdraw_success", amount, _("currency")))
+        CallRemoteEvent(player, "MakeNotification",_("withdraw_success", amount, _("currency")), "linear-gradient(to right, #00b09b, #96c93d)")
     end
 end
 AddRemoteEvent("withdrawAtm", withdrawAtm)
@@ -77,11 +79,11 @@ AddRemoteEvent("withdrawAtm", withdrawAtm)
 function depositAtm(player, amount)
 	if tonumber(amount) <= 0 then return end
     if tonumber(amount) > PlayerData[player].cash then
-        AddPlayerChat(player, _("deposit_error"))
+        CallRemoteEvent(player, "MakeNotification", _("deposit_error"), "linear-gradient(to right, #ff5f6d, #ffc371)")
     else
         PlayerData[player].cash = PlayerData[player].cash - amount
         PlayerData[player].bank_balance = PlayerData[player].bank_balance + amount
-        AddPlayerChat(player, _("deposit_success", amount, _("currency")))
+        CallRemoteEvent(player, "MakeNotification", _("deposit_success", amount, _("currency")), "linear-gradient(to right, #00b09b, #96c93d)")
     end
 end
 AddRemoteEvent("depositAtm", depositAtm)
@@ -90,10 +92,10 @@ AddRemoteEvent("depositAtm", depositAtm)
 AddRemoteEvent("transferAtm", function(player, amount, toplayer)
 	if tonumber(amount) <= 0 then return end
 	if tonumber(amount) > PlayerData[player].bank_balance then
-        AddPlayerChat(player, _("transfer_error"))
+        CallRemoteEvent(player, "MakeNotification", _("transfer_error"), "linear-gradient(to right, #ff5f6d, #ffc371)")
 	else
         PlayerData[player].bank_balance = PlayerData[player].bank_balance - amount
         PlayerData[tonumber(toplayer)].bank_balance = PlayerData[tonumber(toplayer)].bank_balance  + amount
-        AddPlayerChat(player, _("transfer_success", amount, _("currency")))
+        CallRemoteEvent(player, "MakeNotification", _("transfer_success", amount, _("currency")), "linear-gradient(to right, #00b09b, #96c93d)")
     end
 end)

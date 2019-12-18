@@ -130,7 +130,7 @@ function OnPlayerPickupHit(player, pickup)
                         mariadb_async_query(sql, query)
                         DestroyVehicle(vehicle)
                         DestroyVehicleData(vehicle)
-                        return AddPlayerChat(player, _("vehicle_stored"))
+                        return CallRemoteEvent(player, "MakeNotification", _("vehicle_stored"), "linear-gradient(to right, #00b09b, #96c93d)")
                     end
                 end
             end
@@ -169,21 +169,9 @@ function spawnCarServerLoaded(player)
                 for k,w in pairs(GetAllVehicles()) do
                     local x3, y3, z3 = GetVehicleLocation(w)
                     local dist2 = GetDistance3D(v.spawn[1], v.spawn[2], v.spawn[3], x3, y3, z3)
-                    if dist2 < 500.0 then
-                        
-					
-                        local query = mariadb_prepare(sql, "UPDATE `player_garage` SET `garage`=1 WHERE `id` = ?;",
-                        tostring(VehicleData[w].garageid)
-                        )
-                        mariadb_async_query(sql, query)
-                        DestroyVehicle(w)
-                        DestroyVehicleData(w)
-                        AddPlayerChat(VehicleData[w].owner, _("vehicle_stored"))
-                    
-						
-						
-						
-                        
+                    if dist2 < 1000.0 then
+                        isSpawnable = false
+                        break
                     end
                 end
                 if isSpawnable then
@@ -195,9 +183,9 @@ function spawnCarServerLoaded(player)
                     VehicleData[vehicle].garageid = id
                     mariadb_async_query(sql, query)
                     CallRemoteEvent(player, "closeGarageDealer")
-                    return AddPlayerChat(player, _("spawn_vehicle_success", tostring(name)))
+                    return CallRemoteEvent(player, "MakeNotification", _("spawn_vehicle_success", tostring(name)), "linear-gradient(to right, #00b09b, #96c93d)")
                 else
-                    return AddPlayerChat(player, _("cannot_spawn_vehicle"))
+                    return CallRemoteEvent(player, "MakeNotification", _("cannot_spawn_vehicle"), "linear-gradient(to right, #ff5f6d, #ffc371)")
                 end
             end
         end
@@ -226,6 +214,6 @@ function sellCarServerLoaded(player)
         )
         mariadb_async_query(sql, query)
         PlayerData[player].cash = PlayerData[player].cash + tonumber(price)
-        return AddPlayerChat(player, _("sell_vehicle_success", tostring(name), price, _("currency")))
+        return CallRemoteEvent(player, "MakeNotification", _("sell_vehicle_success", tostring(name), price, _("currency")), "linear-gradient(to right, #00b09b, #96c93d)")
 	end
 end
